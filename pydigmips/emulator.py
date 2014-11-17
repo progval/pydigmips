@@ -18,3 +18,10 @@ class Emulator:
     def run(self, max_steps):
         for x in range(0, max_steps):
             self.run_one()
+
+    def run_all(self):
+        try:
+            while True:
+                self.run_one()
+        except Halt:
+            pass
