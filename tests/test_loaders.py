@@ -37,3 +37,9 @@ class HexaLoaderTestCase(TestCase):
         o = [instructions.Ja(3, 5)]
         prog = loaders.load_hexa(i)
         self.assertEqual(prog, o)
+
+    def testJ(self):
+        i = ['EAAA'] # 111 0101010101010
+        o = [instructions.J(2730)]
+        prog = loaders.load_hexa(i)
+        self.assertEqual(prog, o)

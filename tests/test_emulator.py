@@ -85,3 +85,11 @@ class EmulatorTestCase(TestCase):
         s = e.state
         self.assertEqual(s.pc, 2**8 + 5)
         self.assertRaises(emulator.Halt, e.run_one)
+
+    def testJ(self):
+        p = [instructions.J(5)]
+        e = emulator.Emulator(p)
+        e.run(1)
+        s = e.state
+        self.assertEqual(s.pc, 5)
+        self.assertRaises(emulator.Halt, e.run_one)

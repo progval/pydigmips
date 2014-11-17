@@ -263,4 +263,7 @@ class J(Instruction):
 
     @classmethod
     def from_bytes(cls, b):
-        raise NotImplementedError() # TODO
+        return cls(b)
+
+    def __call__(self, state):
+        state.pc = self[0].address
