@@ -66,7 +66,7 @@ class EmulatorTestCase(TestCase):
         self.assertEqual(s.registers[3], 42)
         self.assertRaises(emulator.Halt, e.run_one)
 
-    def testJaOk(self):
+    def testJaSmall(self):
         p = [instructions.Ldi(0, 0),
              instructions.Ldi(1, 5),
              instructions.Ja(0, 1)]
@@ -74,4 +74,14 @@ class EmulatorTestCase(TestCase):
         e.run(3)
         s = e.state
         self.assertEqual(s.pc, 5)
+        self.assertRaises(emulator.Halt, e.run_one)
+
+    def testJaBig(self):
+        p = [instructions.Ldi(0, 1),
+             instructions.Ldi(1, 5),
+             instructions.Ja(0, 1)]
+        e = emulator.Emulator(p)
+        e.run(3)
+        s = e.state
+        self.assertEqual(s.pc, 2**8 + 5)
         self.assertRaises(emulator.Halt, e.run_one)
