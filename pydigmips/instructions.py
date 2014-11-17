@@ -199,7 +199,7 @@ class Ble(Instruction):
     @classmethod
     def from_bytes(cls, b):
         (r1, b) = divmod(b, 2**SHIFTS.R1)
-        (r1, addr) = divmod(b, 2**SHIFTS.R2)
+        (r2, addr) = divmod(b, 2**SHIFTS.R2)
         return cls(r1, r2, addr)
 
     if compatibility.BEQ_MODE:

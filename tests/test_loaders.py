@@ -20,6 +20,12 @@ class HexaLoaderTestCase(TestCase):
         prog = loaders.load_hexa(i)
         self.assertEqual(prog, o)
 
+    def testBle(self):
+        i = ['8EAA'] # 100 011 101 0101010
+        o = [instructions.Ble(3, 5, 42)]
+        prog = loaders.load_hexa(i)
+        self.assertEqual(prog, o)
+
     def testLdi(self):
         i = ['B0AA'] # 101 100 00 10101010
         o = [instructions.Ldi(4, 170)]
