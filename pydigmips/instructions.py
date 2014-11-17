@@ -1,4 +1,5 @@
 import re
+import sys
 import collections
 
 from . import compatibility
@@ -186,9 +187,12 @@ class Ld(MemoryInstruction):
     opcode = 2
 
     def __call__(self, state):
-        # TODO: handle input
-        addr = state.register[self[1].id] + self[2].value
-        state.register[self[0].id] = state.data[addr]
+        if self[1].offset == compatibility.MAGIC_IO_CONSTANT:
+            char = sys.stdin.read(1)
+            state.registers[self[0].id] = ord(char)
+        else:
+            addr = state.registers[self[1].register] + self[1].offset
+            state.registers[self[0].id] = state.data[addr]
 
 @register
 class St(MemoryInstruction):
@@ -196,9 +200,12 @@ class St(MemoryInstruction):
     opcode = 3
 
     def __call__(self, state):
-        # TODO: handle output
-        addr = state.register[self[1].id] + self[2].value
-        state.data[addr] = state.register[self[0]].id
+        if self[1].offset == compatibility.MAGIC_IO_CONSTANT:
+            char = state.registers[self[0].id]
+            sys.stdout.write(chr(char))
+        else:
+            addr = state.register[self[1].register] + self[1].offset
+            state.data[addr] = state.register[self[0]].id
 
 @register
 class Ble(Instruction):

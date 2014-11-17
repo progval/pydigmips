@@ -1,3 +1,5 @@
+import sys
+import io
 from unittest import TestCase
 
 from pydigmips import instructions, state, emulator
@@ -93,3 +95,32 @@ class EmulatorTestCase(TestCase):
         s = e.state
         self.assertEqual(s.pc, 5)
         self.assertRaises(emulator.Halt, e.run_one)
+
+    def testOutput(self):
+        p = [instructions.Ldi(0, ord('P')),
+             instructions.Ldi(1, ord('Y')),
+             instructions.St(0, (7, 63)),
+             instructions.St(1, (7, 63))]
+        e = emulator.Emulator(p)
+        (original_stdout, sys.stdout) = (sys.stdout, io.StringIO())
+        try:
+            e.run(4)
+        finally:
+            (sys.stdout, stream) = (original_stdout, sys.stdout)
+        stream.seek(0)
+        self.assertEqual(stream.read(), 'PY')
+
+    def testInput(self):
+        p = [instructions.Ld(0, (7, 63)),
+             instructions.Ld(1, (7, 63))]
+        e = emulator.Emulator(p)
+        stream = io.StringIO('PY')
+        stream.seek(0)
+        (original_stdin, sys.stdin) = (sys.stdin, stream)
+        try:
+            e.run(2)
+        finally:
+            (sys.stdin, stream) = (original_stdin, sys.stdin)
+        s = e.state
+        self.assertEqual(s.registers[0], ord('P'))
+        self.assertEqual(s.registers[1], ord('Y'))
