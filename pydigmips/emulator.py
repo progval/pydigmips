@@ -4,7 +4,7 @@ class Halt(Exception):
     pass
 
 class Emulator:
-    def __init__(self, program, state=None):
+    def __init__(self, program, state=None, beq=False):
         self.program = program
         self.state = state or State()
 

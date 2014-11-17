@@ -1,6 +1,8 @@
 import re
 import collections
 
+from . import compatibility
+
 class SHIFTS:
     OPCODE = 13
     R1 = 10
@@ -189,14 +191,25 @@ class St(MemoryInstruction):
         state.data[addr] = state.register[self[0]].id
 
 @register
-class Beq(Instruction):
+class Ble(Instruction):
     __slots__ = ()
     opcode = 4
     _spec = (Register, Register, JumpAddress)
 
     @classmethod
     def from_bytes(cls, b):
-        raise NotImplementedError() # TODO
+        (r1, b) = divmod(b, 2**SHIFTS.R1)
+        (r1, addr) = divmod(b, 2**SHIFTS.R2)
+        return cls(r1, r2, addr)
+
+    if compatibility.BEQ_MODE:
+        def __call__(self, state):
+            if state.registers[self[0].id] == state.registers[self[1].id]:
+                state.pc = self[2].address # +1 will be applied later
+    else:
+        def __call__(self, state):
+            if state.registers[self[0].id] <= state.registers[self[1].id]:
+                state.pc = self[2].address # +1 will be applied later
 
 @register
 class Ldi(Instruction):
