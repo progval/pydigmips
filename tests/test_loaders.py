@@ -31,3 +31,9 @@ class HexaLoaderTestCase(TestCase):
         o = [instructions.Ldi(4, 170)]
         prog = loaders.load_hexa(i)
         self.assertEqual(prog, o)
+
+    def testJa(self):
+        i = ['CE80'] # 110 011 101 0000000
+        o = [instructions.Ja(3, 5)]
+        prog = loaders.load_hexa(i)
+        self.assertEqual(prog, o)

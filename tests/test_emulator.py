@@ -37,7 +37,7 @@ class EmulatorTestCase(TestCase):
     def testBleFalse(self):
         p = [instructions.Ldi(0, 42),
              instructions.Ldi(1, 5),
-             instructions.Ble(0, 1, 3),
+             instructions.Ble(0, 1, 1),
              instructions.Ldi(2, 42),
              instructions.Ldi(3, 42)]
         e = emulator.Emulator(p)
@@ -55,7 +55,7 @@ class EmulatorTestCase(TestCase):
     def testBleTrue(self):
         p = [instructions.Ldi(0, 42),
              instructions.Ldi(1, 43),
-             instructions.Ble(0, 1, 3),
+             instructions.Ble(0, 1, 1),
              instructions.Ldi(2, 42),
              instructions.Ldi(3, 42)]
         e = emulator.Emulator(p)
@@ -64,4 +64,14 @@ class EmulatorTestCase(TestCase):
         self.assertEqual(s.pc, 5)
         self.assertEqual(s.registers[2], 0)
         self.assertEqual(s.registers[3], 42)
+        self.assertRaises(emulator.Halt, e.run_one)
+
+    def testJaOk(self):
+        p = [instructions.Ldi(0, 0),
+             instructions.Ldi(1, 5),
+             instructions.Ja(0, 1)]
+        e = emulator.Emulator(p)
+        e.run(3)
+        s = e.state
+        self.assertEqual(s.pc, 5)
         self.assertRaises(emulator.Halt, e.run_one)

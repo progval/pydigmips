@@ -91,6 +91,16 @@ class Immediate(_Immediate):
             raise ValueError('%s is not a valid immediate.' % s)
         return Immediate(int(s))
 
+def twos_comp(val, bits):
+    """compute the 2's compliment of int value val"""
+    if( (val&(1<<(bits-1))) != 0 ):
+        val = val - (1<<bits)
+    return val
+class SignedImmediate(Immediate):
+    @property
+    def value(self):
+        return twos_comp(super().value, 7)
+
 class Instruction:
     __slots__ = ('arguments',)
     def __init__(self, *args):
@@ -194,7 +204,7 @@ class St(MemoryInstruction):
 class Ble(Instruction):
     __slots__ = ()
     opcode = 4
-    _spec = (Register, Register, JumpAddress)
+    _spec = (Register, Register, SignedImmediate)
 
     @classmethod
     def from_bytes(cls, b):
@@ -205,11 +215,11 @@ class Ble(Instruction):
     if compatibility.BEQ_MODE:
         def __call__(self, state):
             if state.registers[self[0].id] == state.registers[self[1].id]:
-                state.pc = self[2].address # +1 will be applied later
+                state.pc += self[2].value # += 1 done before call
     else:
         def __call__(self, state):
             if state.registers[self[0].id] <= state.registers[self[1].id]:
-                state.pc = self[2].address # +1 will be applied later
+                state.pc += self[2].value # += 1 done before call 
 
 @register
 class Ldi(Instruction):
@@ -234,7 +244,16 @@ class Ja(Instruction):
 
     @classmethod
     def from_bytes(cls, b):
-        raise NotImplementedError() # TODO
+        (r1, b) = divmod(b, 2**SHIFTS.R1)
+        (r2, zero) = divmod(b, 2**SHIFTS.R2)
+        assert zero == 0, zero
+        assert r1 < 2**5, r1
+        return cls(r1, r2)
+
+    def __call__(self, state):
+        high = state.registers[self[0].id]
+        low = state.registers[self[1].id]
+        state.pc = (high << 8) + low
 
 @register
 class J(Instruction):
