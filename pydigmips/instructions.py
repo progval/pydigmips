@@ -15,18 +15,39 @@ def register(cls):
 _Register = collections.namedtuple('_Register', ['id'])
 class Register(_Register):
     __slots__ = ()
-    @staticmethod
+
+    @classmethod
+    def from_list(cls, l):
+        return cls(l.pop(0))
+
+    @classmethod
     def from_string(cls, s):
         if len(s) != 2 or s[0] != 'r' or s[1] not in '01234567':
             raise ValueError('%s is not a valid register name' % s)
         return Register(int(s[1]))
 
+    def __eq__(self, other):
+        if not isinstance(other, Register):
+            return False
+        return self.id == other.id
+
 _ComputedAddress = collections.namedtuple('_ComputedAddress',
     ['register', 'offset'])
 class ComputedAddress(_ComputedAddress):
     __slots__ = ()
+
+    @classmethod
+    def from_list(cls, l):
+        item = l.pop(0)
+        if isinstance(item, tuple):
+            (register, offset) = item
+        else:
+            register = item
+            offset = l.pop(0)
+        return cls(register, offset)
+
     _re = re.compile('\[\s*r(?P<register>[0-7])(\s*\+\s*(?P<offset>[0-9]+))\s*\]')
-    @staticmethod
+    @classmethod
     def from_string(cls, s):
         matched = cls._re.match(s)
         if not matched:
@@ -34,10 +55,21 @@ class ComputedAddress(_ComputedAddress):
         return cls(int(matched.group('register')),
                 int(matched.group('offset') or '0'))
 
+    def __eq__(self, other):
+        if not isinstance(other, ComputedAddress):
+            return False
+        return self.register == other.register and \
+                self.offset == other.offset
+
 _JumpAddress = collections.namedtuple('_JumpAddress', ['address'])
 class JumpAddress(_JumpAddress):
     __slots__ = ()
-    @staticmethod
+
+    @classmethod
+    def from_list(cls, l):
+        return cls(l.pop(0),)
+
+    @classmethod
     def from_string(cls, s):
         if not s.isdigit():
             raise ValueError('%s is not a valid jump address.' % s)
@@ -46,7 +78,12 @@ class JumpAddress(_JumpAddress):
 _Immediate = collections.namedtuple('_Immediate', ['value'])
 class Immediate(_Immediate):
     __slots__ = ()
-    @staticmethod
+
+    @classmethod
+    def from_list(cls, l):
+        return cls(l.pop(0),)
+
+    @classmethod
     def from_string(cls, s):
         if not s.isdigit():
             raise ValueError('%s is not a valid immediate.' % s)
@@ -62,8 +99,10 @@ class Instruction:
         if len(args) != len(self._spec):
             raise ValueError('%s expects %d arguments, not %d.' % (
                 self.__class__.__name__.lower(),
-                len(args), len(self._spec)))
-        self.arguments = tuple(f(x) for (f, x) in zip(self._spec, args))
+                len(self._spec), len(args)))
+        args = list(args)
+        self.arguments = tuple(f.from_list(args) for f in self._spec)
+        assert not args, args
 
     @classmethod
     def from_bytes(cls, b):
@@ -73,6 +112,11 @@ class Instruction:
 
     def __getitem__(self, index):
         return self.arguments[index]
+
+    def __repr__(self):
+        return '<pydigmips.instructions.%s(%s)>' % \
+            (self.__class__.__name__,
+             ', '.join(map(str, self.arguments)))
 
     def __eq__(self, other):
         if not isinstance(other, Instruction):
@@ -119,17 +163,30 @@ class MemoryInstruction(Instruction):
 
     @classmethod
     def from_bytes(cls, b):
-        raise NotImplementedError() # TODO
+        (rdest, b) = divmod(b, 2**SHIFTS.R1)
+        (rbase, offset) = divmod(b, 2**SHIFTS.R2)
+        return cls(rdest, ComputedAddress(rbase, offset))
+
 
 @register
 class Ld(MemoryInstruction):
     __slots__ = ()
     opcode = 2
 
+    def __call__(self, state):
+        # TODO: handle input
+        addr = state.register[self[1]] + self[2]
+        state.register[self[0]] = state.data[addr]
+
 @register
 class St(MemoryInstruction):
     __slots__ = ()
     opcode = 3
+
+    def __call__(self, state):
+        # TODO: handle output
+        addr = state.register[self[1]] + self[2]
+        state.data[addr] = state.register[self[0]]
 
 @register
 class Beq(Instruction):

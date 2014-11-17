@@ -12,3 +12,11 @@ class HexaLoaderTestCase(TestCase):
         prog = loaders.load_hexa(i)
         self.assertEqual(prog, o)
 
+    def testLd(self):
+        i = ['4EAA', # 010 011 101 0101010
+             '6EAA'] # 011 011 101 0101010
+        o = [instructions.Ld(3, (5, 42)),
+             instructions.St(3, (5, 42))]
+        prog = loaders.load_hexa(i)
+        self.assertEqual(prog, o)
+
