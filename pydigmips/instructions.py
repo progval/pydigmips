@@ -145,8 +145,8 @@ class Add(ArithmeticInstruction):
     opcode = 0
 
     def __call__(self, state):
-        state.registers[self[0]] = state.registers[self[1]] + \
-            state.registers[self[2]]
+        state.registers[self[0].id] = state.registers[self[1].id] + \
+            state.registers[self[2].id]
 
 @register
 class Sub(ArithmeticInstruction):
@@ -154,8 +154,8 @@ class Sub(ArithmeticInstruction):
     opcode = 1
 
     def __call__(self, state):
-        state.registers[self[0]] = state.registers[self[1]] + \
-            state.registers[self[2]]
+        state.registers[self[0].id] = state.registers[self[1].id] + \
+            state.registers[self[2].id]
 
 class MemoryInstruction(Instruction):
     __slots__ = ()
@@ -175,8 +175,8 @@ class Ld(MemoryInstruction):
 
     def __call__(self, state):
         # TODO: handle input
-        addr = state.register[self[1]] + self[2]
-        state.register[self[0]] = state.data[addr]
+        addr = state.register[self[1].id] + self[2].value
+        state.register[self[0].id] = state.data[addr]
 
 @register
 class St(MemoryInstruction):
@@ -185,8 +185,8 @@ class St(MemoryInstruction):
 
     def __call__(self, state):
         # TODO: handle output
-        addr = state.register[self[1]] + self[2]
-        state.data[addr] = state.register[self[0]]
+        addr = state.register[self[1].id] + self[2].value
+        state.data[addr] = state.register[self[0]].id
 
 @register
 class Beq(Instruction):
@@ -206,7 +206,12 @@ class Ldi(Instruction):
 
     @classmethod
     def from_bytes(cls, b):
-        raise NotImplementedError() # TODO
+        (rdest, imm) = divmod(b, 2**SHIFTS.R1)
+        assert imm < 2**8
+        return cls(rdest, imm)
+
+    def __call__(self, state):
+        state.registers[self[0].id] = self[1].value
 
 @register
 class Ja(Instruction):
