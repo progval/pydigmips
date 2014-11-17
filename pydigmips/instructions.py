@@ -167,6 +167,7 @@ class Sub(ArithmeticInstruction):
     opcode = 1
 
     def __call__(self, state):
+        # TODO: what about negative values?
         state.registers[self[0].id] = state.registers[self[1].id] + \
             state.registers[self[2].id]
 
