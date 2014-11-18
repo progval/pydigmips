@@ -4,9 +4,9 @@ import argparse
 from . import loaders
 from . import emulator
 
-def main(fd):
+def main(fd, **kwargs):
     program = loaders.load_hexa(fd.readlines())
-    e = emulator.Emulator(program)
+    e = emulator.Emulator(program, **kwargs)
     try:
         e.run_all()
     except emulator.SelfLoop:
@@ -17,9 +17,13 @@ def main(fd):
         print('Infinite loop detected (same configuration twice).')
 
 parser = argparse.ArgumentParser(description='DigMIPS emulator.')
-parser.add_argument('hexfile', metavar='hexfile',
+parser.add_argument('hexfile',
         type=argparse.FileType('r'),
         help='The STDOUT output of the assembler')
+parser.add_argument('--infinite-loop', dest='infinite_loop',
+        action='store_true')
+parser.add_argument('--beq', dest='beq',
+        action='store_true')
 if __name__ == '__main__':
     args = parser.parse_args()
-    main(args.hexfile)
+    main(args.hexfile, infinite_loop=args.infinite_loop, beq=args.beq)
