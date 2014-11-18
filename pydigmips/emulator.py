@@ -10,7 +10,9 @@ class SelfLoop(Exception):
     """Raised when an instruction jumps to itself."""
 
 class Emulator:
-    def __init__(self, program, state=None, beq=False, infinite_loop=False):
+    def __init__(self, program, state=None, beq=False, infinite_loop=False,
+            trace=False):
+        self.trace = trace
         self.program = program
         self.state = state or State()
         self.previous_states = set()
@@ -20,6 +22,7 @@ class Emulator:
         if self.state.pc >= len(self.program):
             raise Halt()
         inst = self.program[self.state.pc]
+        print('%d: %s' % (self.state.pc, inst))
         old_pc = self.state.pc
         self.state.pc += 1
         inst(self.state)

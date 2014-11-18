@@ -40,6 +40,9 @@ class Register(_Register):
             return False
         return self.id == other.id
 
+    def __str__(self):
+        return 'r%d' % self.id
+
 _ComputedAddress = collections.namedtuple('_ComputedAddress',
     ['register', 'offset'])
 class ComputedAddress(_ComputedAddress):
@@ -55,6 +58,7 @@ class ComputedAddress(_ComputedAddress):
             offset = l.pop(0)
         return cls(register, offset)
 
+    # TODO: negative offsets
     _re = re.compile('\[\s*r(?P<register>[0-7])(\s*\+\s*(?P<offset>[0-9]+))\s*\]')
     @classmethod
     def from_string(cls, s):
@@ -70,6 +74,10 @@ class ComputedAddress(_ComputedAddress):
         return self.register == other.register and \
                 self.offset == other.offset
 
+    def __str__(self):
+        # TODO: negative offsets
+        return '[%s + %d]' % (self.register, self.offset)
+
 _JumpAddress = collections.namedtuple('_JumpAddress', ['address'])
 class JumpAddress(_JumpAddress):
     __slots__ = ()
@@ -84,6 +92,9 @@ class JumpAddress(_JumpAddress):
             raise ValueError('%s is not a valid jump address.' % s)
         return JumpAddress(int(s))
 
+    def __str__(self):
+        return str(self.address)
+
 _Immediate = collections.namedtuple('_Immediate', ['value'])
 class Immediate(_Immediate):
     __slots__ = ()
@@ -97,6 +108,9 @@ class Immediate(_Immediate):
         if not s.isdigit():
             raise ValueError('%s is not a valid immediate.' % s)
         return Immediate(int(s))
+
+    def __str__(self):
+        return str(self.value)
 
 class SignedImmediate(Immediate):
     @property
@@ -137,6 +151,10 @@ class Instruction:
             return False
         return self.opcode == other.opcode and \
                 self.arguments == other.arguments
+
+    def __str__(self):
+        args = ', '.join(map(str, self.arguments))
+        return '%s %s' % (self.__class__.__name__.lower(), args)
 
 
 
