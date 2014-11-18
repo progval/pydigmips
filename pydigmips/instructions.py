@@ -155,10 +155,17 @@ class Instruction:
                 len(self._spec), len(args)))
 
     def match(self, inst, *args):
+        """Check equality with holes. Also returns the arguments."""
+        # Match the instruction
         if inst.lower() != self.__class__.__name__.lower():
             raise MatchError()
+        # Same instruction, so it should have the same number of args
         assert len(args) == len(self.arguments)
+        # We give arguments to specifiers using the star syntax, so
+        # they have to be tuples; but we also want to allow integers
+        # and None for the sake of readability -> convert them.
         args = [x if isinstance(x, tuple) else (x,) for x in args]
+        # Check they are either equal or there is a hole.
         if all(x == (None,) or f(*x) == y for (x, f, y) in
                 zip(args, self._spec, self.arguments)):
             return self.arguments
