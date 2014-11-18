@@ -23,6 +23,7 @@ class Emulator:
         inst = self.program[self.state.pc]
         old_pc = self.state.pc
         self.state.pc += 1
+        self.state.numberInstructions += 1
         inst(self.state)
         if self.state.pc == old_pc:
             raise SelfLoop()
