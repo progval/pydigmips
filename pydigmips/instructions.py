@@ -208,7 +208,7 @@ class St(MemoryInstruction):
             sys.stdout.write(chr(char))
         else:
             addr = state.registers[self[1].register] + self[1].offset
-            state.data[addr] = state.register[self[0]].id
+            state.data[addr] = state.registers[self[0]].id
 
 @register
 class Ble(Instruction):
