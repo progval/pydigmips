@@ -7,7 +7,14 @@ def main(filename):
     with open(filename) as fd:
         program = loaders.load_hexa(fd.readlines())
     e = emulator.Emulator(program)
-    e.run_all()
+    try:
+        e.run_all()
+    except emulator.SelfLoop:
+        print()
+        print('Self-loop detected. (“stop: j stop”?)')
+    except emulator.InfiniteLoop:
+        print()
+        print('Infinite loop detected (same configuration twice).')
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

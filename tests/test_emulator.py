@@ -160,3 +160,18 @@ class EmulatorTestCase(TestCase):
         s = e.state
         self.assertEqual(s.registers[0], ord('P'))
         self.assertEqual(s.registers[1], ord('Y'))
+
+    def testInfiniteLoop(self):
+        p = [instructions.Ldi(0, 42),
+             instructions.J(0)]
+        e = emulator.Emulator(p)
+        e.run(1) # LDI
+        e.run(1) # J
+        self.assertRaises(emulator.InfiniteLoop, e.run, 1) # LDI
+
+    def testSelfLoop(self):
+        p = [instructions.Ldi(0, 42),
+             instructions.J(1)]
+        e = emulator.Emulator(p)
+        e.run(1)
+        self.assertRaises(emulator.SelfLoop, e.run, 1)
