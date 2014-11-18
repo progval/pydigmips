@@ -195,6 +195,7 @@ class Ld(MemoryInstruction):
             state.registers[self[0].id] = ord(char)
         else:
             addr = state.registers[self[1].register] + self[1].offset
+            addr = addr % (2**8)
             state.registers[self[0].id] = state.data[addr]
 
 @register
@@ -208,7 +209,8 @@ class St(MemoryInstruction):
             sys.stdout.write(chr(char))
         else:
             addr = state.registers[self[1].register] + self[1].offset
-            state.data[addr] = state.registers[self[0]].id
+            addr = addr % (2**8)
+            state.data[addr] = state.registers[self[0].id]
 
 @register
 class Ble(Instruction):
