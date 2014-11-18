@@ -44,11 +44,12 @@ class Emulator:
         if self.trace_stack:
             if self.state.pc in self.analyzer.pushes:
                 id = self.analyzer.pushes[self.state.pc].arg
-                print('Pushed %d (r%d)' % (self.state.registers[id], id))
+                print('%.03d: Pushed %d (r%d)' % (self.state.pc,
+                    self.state.registers[id], id))
             if self.state.pc in self.analyzer.pops:
                 id = self.analyzer.pops[self.state.pc].arg
-                print('Poped %d (r%d)' %
-                    (self.analyzer.get_stack_top(self.state), id))
+                print('%.03d Poped %d (r%d)' % (self.state.pc,
+                    self.analyzer.get_stack_top(self.state), id))
 
 
     def run_one(self):
