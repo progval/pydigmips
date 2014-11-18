@@ -84,6 +84,26 @@ class EmulatorTestCase(TestCase):
         self.assertEqual(s.registers[3], 42)
         self.assertRaises(emulator.Halt, e.run_one)
 
+    def testSt(self):
+        p = [instructions.Ldi(0, 5),
+             instructions.Ldi(1, 42),
+             instructions.St(1, (0, 10))]
+        e = emulator.Emulator(p)
+        e.run(3)
+        s = e.state
+        self.assertEqual(s.data[15], 42, s.data)
+
+    def testLd(self):
+        p = [instructions.Ldi(0, 5),
+             instructions.Ldi(1, 42),
+             instructions.St(1, (0, 10)),
+             instructions.Ld(2, (0, 10))]
+        e = emulator.Emulator(p)
+        e.run(4)
+        s = e.state
+        self.assertEqual(s.registers[2], 42)
+
+
     def testJaSmall(self):
         p = [instructions.Ldi(0, 0),
              instructions.Ldi(1, 5),
