@@ -6,6 +6,7 @@ from . import emulator
 from . import compatibility
 
 def main(fd, **kwargs):
+    """Main function called from the command-line."""
     program = loaders.load_hexa(fd.readlines())
     e = emulator.Emulator(program, **kwargs)
     try:
