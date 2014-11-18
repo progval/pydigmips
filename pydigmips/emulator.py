@@ -3,6 +3,7 @@
 import time
 
 from .state import State
+from .assembly_analysis import Analyzer
 
 class Halt(Exception):
     pass
@@ -21,13 +22,16 @@ def format_cell(x):
 class Emulator:
     """Emulator of DigMIPS code."""
     def __init__(self, program, state=None, infinite_loop=False,
-            trace_inst=False, trace_mem=False):
+            trace_inst=False, trace_mem=False, trace_stack=False):
         self.trace_inst = trace_inst
         self.trace_mem = trace_mem
+        self.trace_stack = trace_stack
         self.program = program
         self.state = state or State()
         self.previous_states = set()
         self.detect_same_config = infinite_loop
+        self.analyzer = Analyzer(program)
+        self.analyzer.analyze()
 
     def show_trace(self):
         """If the options ask for it, displays the trace."""
@@ -37,6 +41,15 @@ class Emulator:
             print('Data: %s' % ' '.join(map(format_cell, self.state.data)))
         if self.trace_inst:
             print('%.03d: %s' % (self.state.pc, inst))
+        if self.trace_stack:
+            if self.state.pc in self.analyzer.pushes:
+                id = self.analyzer.pushes[self.state.pc].arg
+                print('Pushed %d (r%d)' % (self.state.registers[id], id))
+            if self.state.pc in self.analyzer.pops:
+                id = self.analyzer.pops[self.state.pc].arg
+                print('Poped %d (r%d)' %
+                    (self.analyzer.get_stack_top(self.state), id))
+
 
     def run_one(self):
         """Run one instruction."""

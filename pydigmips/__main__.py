@@ -40,10 +40,15 @@ parser.add_argument('--trace-inst', dest='trace_inst',
 parser.add_argument('--trace-mem', dest='trace_mem',
         action='store_true',
         help='Show the state of registers and data memory while running.')
+parser.add_argument('--trace-stack', dest='trace_stack',
+        action='store_true',
+        help='Displays translated function calls and stack, if the code '
+             'uses the standard way of handling it.')
 if __name__ == '__main__':
     args = parser.parse_args()
     compatibility.beq = args.beq
     if args.old_magic_io:
         compatibility.MAGIC_IO_CONSTANT = 255
     main(args.hexfile, infinite_loop=args.infinite_loop,
-            trace_inst=args.trace_inst, trace_mem=args.trace_mem)
+            trace_inst=args.trace_inst, trace_mem=args.trace_mem,
+            trace_stack=args.trace_stack)
