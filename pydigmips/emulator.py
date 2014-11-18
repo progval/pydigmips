@@ -11,8 +11,9 @@ class SelfLoop(Exception):
 
 class Emulator:
     def __init__(self, program, state=None, beq=False, infinite_loop=False,
-            trace=False):
-        self.trace = trace
+            trace_inst=False, trace_mem=False):
+        self.trace_inst = trace_inst
+        self.trace_mem = trace_mem
         self.program = program
         self.state = state or State()
         self.previous_states = set()
@@ -22,7 +23,10 @@ class Emulator:
         if self.state.pc >= len(self.program):
             raise Halt()
         inst = self.program[self.state.pc]
-        if self.trace:
+        if self.trace_mem:
+            print('Registers: %r' % self.state.registers)
+            print('Data: %r' % (self.state.data))
+        if self.trace_inst:
             print('%.03d: %s' % (self.state.pc, inst))
         old_pc = self.state.pc
         self.state.pc += 1

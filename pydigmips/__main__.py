@@ -24,9 +24,11 @@ parser.add_argument('--infinite-loop', dest='infinite_loop',
         action='store_true')
 parser.add_argument('--beq', dest='beq',
         action='store_true')
-parser.add_argument('--trace', dest='trace',
+parser.add_argument('--trace-inst', dest='trace_inst',
+        action='store_true')
+parser.add_argument('--trace-mem', dest='trace_mem',
         action='store_true')
 if __name__ == '__main__':
     args = parser.parse_args()
     main(args.hexfile, infinite_loop=args.infinite_loop, beq=args.beq,
-            trace=args.trace)
+            trace_inst=args.trace_inst, trace_mem=args.trace_mem)
