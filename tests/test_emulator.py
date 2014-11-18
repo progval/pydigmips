@@ -164,7 +164,7 @@ class EmulatorTestCase(TestCase):
     def testInfiniteLoop(self):
         p = [instructions.Ldi(0, 42),
              instructions.J(0)]
-        e = emulator.Emulator(p)
+        e = emulator.Emulator(p, infinite_loop=True)
         e.run(1) # LDI
         e.run(1) # J
         self.assertRaises(emulator.InfiniteLoop, e.run, 1) # LDI
