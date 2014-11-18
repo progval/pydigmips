@@ -60,6 +60,7 @@ class Emulator:
         self.show_trace()
         old_pc = self.state.pc
         self.state.pc += 1
+        self.state.numberInstructions += 1
         inst(self.state)
         self.detect_loops(old_pc)
 

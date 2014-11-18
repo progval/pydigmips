@@ -14,9 +14,11 @@ def main(fd, **kwargs):
     except emulator.SelfLoop:
         print()
         print('Self-loop detected. (“stop: j stop”?)')
+        print('{0} instructions were executed.'.format(str(e.state.numberInstructions)))
     except emulator.InfiniteLoop:
         print()
         print('Infinite loop detected (same configuration twice).')
+        print('{0} instructions were executed.'.format(str(e.state.numberInstructions)))
 
 parser = argparse.ArgumentParser(description='DigMIPS emulator.')
 parser.add_argument('hexfile',
