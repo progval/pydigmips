@@ -25,18 +25,25 @@ class Emulator:
         self.previous_states = set()
         self.detect_same_config = infinite_loop
 
-    def run_one(self):
-        if self.state.pc >= len(self.program):
-            raise Halt()
+    def show_trace(self):
         inst = self.program[self.state.pc]
         if self.trace_mem:
             print('Registers: %r' % self.state.registers)
             print('Data: %s' % ' '.join(map(format_cell, self.state.data)))
         if self.trace_inst:
             print('%.03d: %s' % (self.state.pc, inst))
+
+    def run_one(self):
+        if self.state.pc >= len(self.program):
+            raise Halt()
+        inst = self.program[self.state.pc]
+        self.show_trace()
         old_pc = self.state.pc
         self.state.pc += 1
         inst(self.state)
+        self.detect_loops(old_pc)
+
+    def detect_loops(self, old_pc):
         if self.state.pc == old_pc:
             raise SelfLoop()
         if self.detect_same_config:

@@ -120,17 +120,23 @@ class SignedImmediate(Immediate):
 class Instruction:
     __slots__ = ('arguments',)
     def __init__(self, *args):
+        self.check_not_abstract()
+        self.check_args(args)
+        args = list(args)
+        self.arguments = tuple(f.from_list(args) for f in self._spec)
+        assert not args, args
+
+    def check_not_abstract(self):
         if not hasattr(self, '_spec') or not hasattr(self, '__call__') or \
                 not hasattr(self, 'opcode'):
             raise NotImplementedError('%s is an abstract class.' %
                     self.__class__)
+
+    def check_args(self, args):
         if len(args) != len(self._spec):
             raise ValueError('%s expects %d arguments, not %d.' % (
                 self.__class__.__name__.lower(),
                 len(self._spec), len(args)))
-        args = list(args)
-        self.arguments = tuple(f.from_list(args) for f in self._spec)
-        assert not args, args
 
     @classmethod
     def from_bytes(cls, b):
