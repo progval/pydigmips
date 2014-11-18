@@ -15,10 +15,30 @@ class AnalyzerTestCase(TestCase):
         a.analyze()
         self.assertEqual(a.pushes, {1: Push(arg=4, tmp=2)})
 
+    def testPushReverse(self):
+        p = [instructions.Ldi(0, 1),
+             instructions.St(4, (6, 0)),
+             instructions.Ldi(2, 1),
+             instructions.Sub(6, 6, 2),
+             instructions.Ldi(0, 1)]
+        a = Analyzer(p)
+        a.analyze()
+        self.assertEqual(a.pushes, {1: Push(arg=4, tmp=2)})
+
     def testPop(self):
         p = [instructions.Ldi(0, 1),
              instructions.Ldi(2, 1),
              instructions.Add(6, 6, 2),
+             instructions.Ld(4, (6, 0)),
+             instructions.Ldi(0, 1)]
+        a = Analyzer(p)
+        a.analyze()
+        self.assertEqual(a.pops, {1: Pop(arg=4, tmp=2)})
+
+    def testPopReverse(self):
+        p = [instructions.Ldi(0, 1),
+             instructions.Add(6, 6, 2),
+             instructions.Ldi(2, 1),
              instructions.Ld(4, (6, 0)),
              instructions.Ldi(0, 1)]
         a = Analyzer(p)
