@@ -22,7 +22,8 @@ class Emulator:
         if self.state.pc >= len(self.program):
             raise Halt()
         inst = self.program[self.state.pc]
-        print('%.03d: %s' % (self.state.pc, inst))
+        if self.trace:
+            print('%.03d: %s' % (self.state.pc, inst))
         old_pc = self.state.pc
         self.state.pc += 1
         inst(self.state)
