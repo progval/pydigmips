@@ -207,7 +207,7 @@ class St(MemoryInstruction):
             char = state.registers[self[0].id]
             sys.stdout.write(chr(char))
         else:
-            addr = state.register[self[1].register] + self[1].offset
+            addr = state.registers[self[1].register] + self[1].offset
             state.data[addr] = state.register[self[0]].id
 
 @register
