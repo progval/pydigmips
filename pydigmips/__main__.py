@@ -3,6 +3,7 @@ import argparse
 
 from . import loaders
 from . import emulator
+from . import compatibility
 
 def main(fd, **kwargs):
     program = loaders.load_hexa(fd.readlines())
@@ -37,5 +38,6 @@ parser.add_argument('--trace-mem', dest='trace_mem',
         help='Show the state of registers and data memory while running.')
 if __name__ == '__main__':
     args = parser.parse_args()
-    main(args.hexfile, infinite_loop=args.infinite_loop, beq=args.beq,
+    compatibility.beq = args.beq
+    main(args.hexfile, infinite_loop=args.infinite_loop,
             trace_inst=args.trace_inst, trace_mem=args.trace_mem)

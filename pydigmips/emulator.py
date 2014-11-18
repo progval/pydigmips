@@ -16,7 +16,7 @@ def format_cell(x):
     return r.upper()
 
 class Emulator:
-    def __init__(self, program, state=None, beq=False, infinite_loop=False,
+    def __init__(self, program, state=None, infinite_loop=False,
             trace_inst=False, trace_mem=False):
         self.trace_inst = trace_inst
         self.trace_mem = trace_mem
