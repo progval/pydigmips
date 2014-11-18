@@ -11,3 +11,6 @@ class State:
         self.data = array.array('B',
                 map(lambda x:0, range(0, 2**DATA_ADDRESS_WIDTH)))
         self.pc = 0
+
+    def freeze(self):
+        return (tuple(self.registers), tuple(self.data), self.pc)
