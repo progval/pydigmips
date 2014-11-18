@@ -14,6 +14,9 @@ class SHIFTS:
     R2 = 7
     R3 = 4
 
+class MatchError(Exception):
+    pass
+
 def twos_comp(val, bits):
     """compute the 2's compliment of int value val"""
     if( (val&(1<<(bits-1))) != 0 ):
@@ -150,6 +153,16 @@ class Instruction:
             raise ValueError('%s expects %d arguments, not %d.' % (
                 self.__class__.__name__.lower(),
                 len(self._spec), len(args)))
+
+    def match(self, inst, *args):
+        if inst.lower() != self.__class__.__name__.lower():
+            raise MatchError()
+        assert len(args) == len(self.arguments)
+        args = [x if isinstance(x, tuple) else (x,) for x in args]
+        if all(x == (None,) or f(*x) == y for (x, f, y) in
+                zip(args, self._spec, self.arguments)):
+            return self.arguments
+        raise MatchError()
 
     @classmethod
     def from_bytes(cls, b):

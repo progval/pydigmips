@@ -38,30 +38,20 @@ class Analyzer:
         return instances
 
     def recognize_push(self, inst1, inst2, inst3):
-        if not isinstance(inst1, instructions.St) or \
-                inst1[1].register != 6 or \
-                inst1[1].offset != 0:
-            return 
-        push_arg = inst1[0].id
-        if not isinstance(inst2, instructions.Ldi) or \
-                inst2[1].value != 1:
-            return 
-        push_tmp = inst2[0].id
-        if inst3 != instructions.Sub(6, 6, push_tmp):
-            return
-        return Push(push_arg, push_tmp)
+        try:
+            (push_arg, _) = inst1.match('st', None, (6, 0))
+            (push_tmp, _) = inst2.match('ldi', None, 1)
+            inst3.match('sub', 6, 6, push_tmp)
+            return Push(push_arg.id, push_tmp.id)
+        except instructions.MatchError:
+            return None
 
     def recognize_pop(self, inst1, inst2, inst3):
-        if not isinstance(inst1, instructions.Ldi) or \
-                inst1[1].value != 1:
-            return 
-        pop_tmp = inst1[0].id
-        if inst2 != instructions.Add(6, 6, pop_tmp):
-            return
-        if not isinstance(inst3, instructions.Ld) or \
-                inst3[1].register != 6 or \
-                inst3[1].offset != 0:
-            return
-        pop_arg = inst3[0].id
-        return Pop(pop_arg, pop_tmp)
+        try:
+            (pop_tmp, _) = inst1.match('ldi', None, 1)
+            inst2.match('add', 6, 6, pop_tmp.id)
+            (pop_arg, _) = inst3.match('ld', None, (6, 0))
+        except instructions.MatchError:
+            return None
+        return Pop(pop_arg.id, pop_tmp.id)
 
