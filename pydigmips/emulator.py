@@ -22,7 +22,7 @@ class Emulator:
         if self.state.pc >= len(self.program):
             raise Halt()
         inst = self.program[self.state.pc]
-        print('%d: %s' % (self.state.pc, inst))
+        print('%.03d: %s' % (self.state.pc, inst))
         old_pc = self.state.pc
         self.state.pc += 1
         inst(self.state)
