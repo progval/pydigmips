@@ -29,6 +29,9 @@ parser.add_argument('--beq', dest='beq',
         action='store_true',
         help='Use old instruction set, which implements BEQ instead of '
              'BLE at opcode 4.')
+parser.add_argument('--old-magic-io', dest='old_magic_io',
+        action='store_true',
+        help='Use old magic constant for making I/O (255 instead of 63).')
 parser.add_argument('--trace-inst', dest='trace_inst',
         action='store_true',
         help='Shows the Program Counter and the executed instruction '
@@ -39,5 +42,7 @@ parser.add_argument('--trace-mem', dest='trace_mem',
 if __name__ == '__main__':
     args = parser.parse_args()
     compatibility.beq = args.beq
+    if args.old_magic_io:
+        compatibility.MAGIC_IO_CONSTANT = 255
     main(args.hexfile, infinite_loop=args.infinite_loop,
             trace_inst=args.trace_inst, trace_mem=args.trace_mem)
