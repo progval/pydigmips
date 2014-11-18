@@ -10,6 +10,12 @@ class SHIFTS:
     R2 = 7
     R3 = 4
 
+def twos_comp(val, bits):
+    """compute the 2's compliment of int value val"""
+    if( (val&(1<<(bits-1))) != 0 ):
+        val = val - (1<<bits)
+    return val
+
 INSTRUCTIONS = {}
 def register(cls):
     INSTRUCTIONS[cls.opcode] = cls
@@ -92,11 +98,6 @@ class Immediate(_Immediate):
             raise ValueError('%s is not a valid immediate.' % s)
         return Immediate(int(s))
 
-def twos_comp(val, bits):
-    """compute the 2's compliment of int value val"""
-    if( (val&(1<<(bits-1))) != 0 ):
-        val = val - (1<<bits)
-    return val
 class SignedImmediate(Immediate):
     @property
     def value(self):
@@ -158,8 +159,8 @@ class Add(ArithmeticInstruction):
     opcode = 0
 
     def __call__(self, state):
-        state.registers[self[0].id] = state.registers[self[1].id] + \
-            state.registers[self[2].id]
+        s = (state.registers[self[1].id] + state.registers[self[2].id])
+        state.registers[self[0].id] = s % (2**8)
 
 @register
 class Sub(ArithmeticInstruction):
@@ -167,9 +168,10 @@ class Sub(ArithmeticInstruction):
     opcode = 1
 
     def __call__(self, state):
-        # TODO: what about negative values?
-        state.registers[self[0].id] = state.registers[self[1].id] + \
-            state.registers[self[2].id]
+        s = (state.registers[self[1].id] - state.registers[self[2].id])
+        if s < 0:
+            s += 256
+        state.registers[self[0].id] = s % (2**8)
 
 class MemoryInstruction(Instruction):
     __slots__ = ()

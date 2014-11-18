@@ -36,6 +36,22 @@ class EmulatorTestCase(TestCase):
         self.assertEqual(s.registers[1], 5)
         self.assertEqual(s.registers[2], 47)
 
+    def testSub(self):
+        p = [instructions.Ldi(1, 1),
+             instructions.Ldi(2, 2),
+             instructions.Sub(3, 1, 2),
+             instructions.Ldi(2, ord('N')),
+             instructions.Add(3, 3, 2),
+             instructions.St(3, (4, 63))]
+        e = emulator.Emulator(p)
+        (original_stdout, sys.stdout) = (sys.stdout, io.StringIO())
+        try:
+            e.run(6)
+        finally:
+            (sys.stdout, stream) = (original_stdout, sys.stdout)
+        stream.seek(0)
+        self.assertEqual(stream.read(), 'M')
+
     def testBleFalse(self):
         p = [instructions.Ldi(0, 42),
              instructions.Ldi(1, 5),
