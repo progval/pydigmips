@@ -9,6 +9,12 @@ class InfiniteLoop(Exception):
 class SelfLoop(Exception):
     """Raised when an instruction jumps to itself."""
 
+def format_cell(x):
+    r = hex(x)[2:]
+    if len(r) == 1:
+        r = '0' + r
+    return r.upper()
+
 class Emulator:
     def __init__(self, program, state=None, beq=False, infinite_loop=False,
             trace_inst=False, trace_mem=False):
@@ -25,7 +31,7 @@ class Emulator:
         inst = self.program[self.state.pc]
         if self.trace_mem:
             print('Registers: %r' % self.state.registers)
-            print('Data: %r' % (self.state.data))
+            print('Data: %s' % ' '.join(map(format_cell, self.state.data)))
         if self.trace_inst:
             print('%.03d: %s' % (self.state.pc, inst))
         old_pc = self.state.pc
