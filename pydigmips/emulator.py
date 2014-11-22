@@ -48,7 +48,7 @@ class Emulator:
                     self.state.registers[id], id))
             if self.state.pc in self.analyzer.pops:
                 id = self.analyzer.pops[self.state.pc].arg
-                print('%.03d Poped %d (r%d)' % (self.state.pc,
+                print('%.03d: Poped %d (r%d)' % (self.state.pc,
                     self.analyzer.get_stack_top(self.state), id))
 
 
