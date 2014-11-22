@@ -14,44 +14,37 @@ class Analyzer:
         self.program = program
 
     def analyze(self):
-        self.pushes = self.recognize_pushes_pops(self.recognize_push)
-        self.pops = self.recognize_pushes_pops(self.recognize_pop)
+        self.pops = self.recognize_pops()
+        self.pushes = self.recognize_pushes()
 
     def get_stack_top(self, state):
         if state.registers[6] == 255:
             return None
         return state.data[state.registers[6]+1]
 
-    def recognize_pushes_pops(self, f):
-        instances = {}
-        for i in range(0, len(self.program)-2):
-            (inst1, inst2, inst3) = self.program[i:i+3]
-            push = f(inst1, inst2, inst3)
-            if push:
-                instances[i] = push
-            else:
-                # The assembler does not follow the order defined in the
-                # lecture.
-                push = f(inst2, inst1, inst3)
-                if push:
-                    instances[i] = push
-        return instances
+    def recognize_pushes(self):
+        pushes = {}
+        for (i, inst) in enumerate(self.program):
+            try:
+                (r, (six, offset)) = inst.match('st', None, None)
+                if six != 6:
+                    raise instructions.MatchError()
+            except instructions.MatchError:
+                continue
+            pushes[i] = Push(r.id, None)
+        return pushes
 
-    def recognize_push(self, inst1, inst2, inst3):
-        try:
-            (push_arg, _) = inst1.match('st', None, (6, 0))
-            (push_tmp, _) = inst2.match('ldi', None, 1)
-            inst3.match('sub', 6, 6, push_tmp)
-            return Push(push_arg.id, push_tmp.id)
-        except instructions.MatchError:
-            return None
+    def recognize_pops(self):
+        pops = {}
+        for (i, inst) in enumerate(self.program):
+            try:
+                (r, (six, offset)) = inst.match('ld', None, None)
+                if six != 6:
+                    raise instructions.MatchError()
+            except instructions.MatchError:
+                continue
+            pops[i] = Pop(r.id, None)
+        return pops
 
-    def recognize_pop(self, inst1, inst2, inst3):
-        try:
-            (pop_tmp, _) = inst1.match('ldi', None, 1)
-            inst2.match('add', 6, 6, pop_tmp.id)
-            (pop_arg, _) = inst3.match('ld', None, (6, 0))
-        except instructions.MatchError:
-            return None
-        return Pop(pop_arg.id, pop_tmp.id)
+
 

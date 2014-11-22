@@ -13,7 +13,7 @@ class AnalyzerTestCase(TestCase):
              instructions.Ldi(0, 1)]
         a = Analyzer(p)
         a.analyze()
-        self.assertEqual(a.pushes, {1: Push(arg=4, tmp=2)})
+        self.assertEqual(a.pushes, {2: Push(arg=4, tmp=None)})
 
     def testPushReverse(self):
         p = [instructions.Ldi(0, 1),
@@ -23,7 +23,7 @@ class AnalyzerTestCase(TestCase):
              instructions.Ldi(0, 1)]
         a = Analyzer(p)
         a.analyze()
-        self.assertEqual(a.pushes, {1: Push(arg=4, tmp=2)})
+        self.assertEqual(a.pushes, {1: Push(arg=4, tmp=None)})
 
     def testPop(self):
         p = [instructions.Ldi(0, 1),
@@ -33,7 +33,7 @@ class AnalyzerTestCase(TestCase):
              instructions.Ldi(0, 1)]
         a = Analyzer(p)
         a.analyze()
-        self.assertEqual(a.pops, {1: Pop(arg=4, tmp=2)})
+        self.assertEqual(a.pops, {3: Pop(arg=4, tmp=None)})
 
     def testPopReverse(self):
         p = [instructions.Ldi(0, 1),
@@ -43,7 +43,7 @@ class AnalyzerTestCase(TestCase):
              instructions.Ldi(0, 1)]
         a = Analyzer(p)
         a.analyze()
-        self.assertEqual(a.pops, {1: Pop(arg=4, tmp=2)})
+        self.assertEqual(a.pops, {3: Pop(arg=4, tmp=None)})
 
     def testStackTop(self):
         p = [instructions.Ldi(6, 255),
