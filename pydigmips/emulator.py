@@ -3,6 +3,7 @@
 import time
 
 from .state import State
+from . import instructions
 from .assembly_analysis import Analyzer
 
 class Halt(Exception):
@@ -11,6 +12,8 @@ class InfiniteLoop(Exception):
     pass
 class SelfLoop(Exception):
     """Raised when an instruction jumps to itself."""
+class JumpZero(Exception):
+    pass
 
 def format_cell(x):
     """Formats the content of a cell so it is displayed nicely."""
@@ -22,7 +25,8 @@ def format_cell(x):
 class Emulator:
     """Emulator of DigMIPS code."""
     def __init__(self, program, state=None, infinite_loop=False,
-            trace_inst=False, trace_mem=False, trace_stack=False):
+            trace_inst=False, trace_mem=False, trace_stack=False,
+            jump_zero=False):
         self.trace_inst = trace_inst
         self.trace_mem = trace_mem
         self.trace_stack = trace_stack
@@ -30,6 +34,7 @@ class Emulator:
         self.state = state or State()
         self.previous_states = set()
         self.detect_same_config = infinite_loop
+        self.forbid_jump_zero = jump_zero
         self.analyzer = Analyzer(program)
         self.analyzer.analyze()
 
@@ -61,6 +66,13 @@ class Emulator:
         old_pc = self.state.pc
         self.state.pc += 1
         inst(self.state)
+        if self.forbid_jump_zero and self.state.pc == 0:
+            raise JumpZero()
+        """
+        assert self.state.registers[7] == 0 or \
+                self.state.registers[7] >= self.state.registers[6], \
+                (self.state.registers, old_pc,
+                        self.program[old_pc])"""
         self.detect_loops(old_pc)
 
     def detect_loops(self, old_pc):
