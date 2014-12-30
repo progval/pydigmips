@@ -67,7 +67,6 @@ class ComputedAddress(_ComputedAddress):
             offset = l.pop(0)
         return cls(register, offset)
 
-    # TODO: negative offsets
     _re = re.compile(r'\[\s*r(?P<register>[0-7])(\s*\+\s*(?P<offset>[0-9]+))\s*\]')
     @classmethod
     def from_string(cls, s):
@@ -245,6 +244,8 @@ class MemoryInstruction(Instruction):
     def from_bytes(cls, b):
         (rdest, b) = divmod(b, 2**SHIFTS.R1)
         (rbase, offset) = divmod(b, 2**SHIFTS.R2)
+        if offset > 63:
+            offset -= 128
         return cls(rdest, ComputedAddress(rbase, offset))
 
 
