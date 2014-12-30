@@ -272,6 +272,8 @@ class St(MemoryInstruction):
     def __call__(self, state):
         if self[1].offset == compatibility.MAGIC_IO_CONSTANT:
             char = state.registers[self[0].id]
+            if char == 13: # \r
+                char = 10
             sys.stdout.write(chr(char))
         else:
             addr = state.registers[self[1].register] + self[1].offset
